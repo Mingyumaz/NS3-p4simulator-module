@@ -15,6 +15,7 @@ namespace ns3 {
   std::string P4GlobalVar::g_p4MatchTypePath="";
   unsigned int P4GlobalVar::g_populateFlowTableWay=RUNTIME_CLI; // LOCAL_CALL/RUNTIME_CLI
   std::string P4GlobalVar::g_p4JsonPath="";
+  int P4GlobalVar::g_switchBottleNeck=900;
 
   std::string P4GlobalVar::g_homePath="/home/p4/";
   std::string P4GlobalVar::g_ns3RootName="/";

@@ -298,9 +298,12 @@ P4Model::P4Model(P4NetDevice* netDevice, bool enable_swap,
     m_egressTimerEvent = EventId(); // default initial value
     m_transmitTimerEvent = EventId(); // default initial value
     // default time setting for event loop.
-    m_ingressTimeReference = Time("500us");
-    m_egressTimeReference = Time("900us"); // 1 / 1280 = 0.00078125 = 780 TCP // 900 UDP
-    m_transmitTimeReference = Time("500us");
+
+    std::string time_ref_fast = std::to_string(P4GlobalVar::g_switchBottleNeck / 2) + "us";
+    std::string time_ref_bottle_neck = std::to_string(P4GlobalVar::g_switchBottleNeck) + "us";
+    m_ingressTimeReference = Time(time_ref_fast);
+    m_egressTimeReference = Time(time_ref_bottle_neck);
+    m_transmitTimeReference = Time(time_ref_fast);
 
     // ns3 settings init @mingyu
     address_num = 0;

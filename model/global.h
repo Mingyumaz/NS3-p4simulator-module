@@ -66,6 +66,12 @@ public:
 	static std::string g_viewFlowTablePath;
 	static std::string g_p4JsonPath;
 	static unsigned int g_populateFlowTableWay;
+	/**
+	 * @brief the bmv2 is not integrated into ns-3 fully, so the control
+	 * of the bottleneck needs to be set in bmv2 (by setting the packet 
+	 * processing speed of the switch).
+	 */
+	static int g_switchBottleNeck;
 
 	// configure file path info
 	static std::string g_homePath;
