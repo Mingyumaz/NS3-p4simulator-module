@@ -1,6 +1,8 @@
 #include "ns3/helper.h"
 #include <iostream>
 #include <math.h>
+#include <algorithm>
+#include <vector>
 
 namespace ns3 {
 
@@ -135,6 +137,19 @@ std::string HexstrToBytes(const std::string& str)
     return res;
 }
 
+/*
+std::string HexstrToBytes(const std::string& str, unsigned int bitWidth)
+{
+    std::string res;
+    res.resize(ceil(double(bitWidth) / 8));
+    std::string full_ip_res(str);
+    for (size_t i = 0; i < res.size(); i++) {
+        res[i] = full_ip_res[i];
+    }
+    return res;
+}
+*/
+
 std::string HexstrToBytes(const std::string& str, unsigned int bitWidth)
 {
 
@@ -255,4 +270,85 @@ double StrToDouble(const std::string& str)
 
 	return integerRes + decimalRes*0.1;
 }
+
+std::string IpStrToBytes(const std::string& str)
+{
+    std::string res;
+    int j = 0, temp = 0;
+    res.resize(4); // ip with 4 parts.
+    for (size_t i = 0; i < str.size(); i++) {
+        if (str[i] == '.') {
+            res[j] = temp;
+            temp = 0;
+            j++;
+        }
+        else {
+            temp = temp * 10 + (str[i] - '0'); 
+        }
+    }
+
+    res[3] = temp; // deal with the last number.
+    return res;
 }
+
+std::string IpStrToBytes(const std::string& str, unsigned int bitWidth)
+{
+    std::string res;
+    res.resize(ceil(double(bitWidth) / 8));
+    std::string full_ip_res = IpStrToBytes(str);
+    for (size_t i = 0; i < res.size(); i++) {
+        res[i] = full_ip_res[i];
+    }
+    return res;
+}
+
+std::string IntToBytes (std::string input_str, int bitwidth)
+{
+    // transfer from Python <runtime_CLI.py> by handwork
+
+    std::vector<unsigned int> byte_array;
+    std::string res;
+    unsigned int input_num = std::stoi(input_str); // assume decimal 10
+    
+    while (input_num > 0) {
+        byte_array.push_back(input_num % 256);
+        input_num = input_num / 256;
+        bitwidth--;
+    }
+    if (bitwidth < 0) {
+        std::cout << "UIn_BadParamError: too large parameter!" << std::endl;
+    }
+    while (bitwidth > 0)
+    {
+        byte_array.push_back(0);
+        bitwidth--;
+    }
+    std::reverse(byte_array.begin(), byte_array.end());
+    
+    // copy to the res.
+    res.resize(byte_array.size());
+    for (int i = 0; i < int(byte_array.size()); i++) {
+        res[i] = byte_array[i];
+    }
+    return res;
+}
+
+std::string ParseParam (std::string& input_str, unsigned int bitwidth)
+{
+    if (bitwidth == 32) {
+        return HexstrToBytes(input_str);
+    }
+    else if (bitwidth == 48) {
+        //return macAddr_to_bytes(input_str);
+    }
+    else if (bitwidth == 128) {
+        //return ipv6Addr_to_bytes(input_str);
+    }
+    
+    // with int
+    int bw = (bitwidth + 7) / 8;
+    return IntToBytes(input_str, bw);
+    
+}
+
+}//namespace ns3

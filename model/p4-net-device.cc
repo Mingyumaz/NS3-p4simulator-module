@@ -105,14 +105,20 @@ P4NetDevice::P4NetDevice() :
 	char * args[2] = { NULL,a3 };
 	p4Model->init(2, args);
 
-	//TO DO: call P4Model start_and_return_ ,start mutiple thread
+	// start mutiple thread
+	p4Model->start_and_return_();
 
-	//Init P4Model Flow Table
+	// Init P4Model Flow Table
 	if (P4GlobalVar::g_populateFlowTableWay == LOCAL_CALL)
 		p4Switch->Init();
-
 	p4Switch = NULL;
+	
 	NS_LOG_LOGIC("A P4 Netdevice was initialized.");
+}
+
+P4Model* P4NetDevice::GetP4Model()
+{
+	return p4Model;
 }
 
 void P4NetDevice::ReceiveFromDevice(Ptr<ns3::NetDevice> device,
@@ -135,9 +141,10 @@ void P4NetDevice::ReceiveFromDevice(Ptr<ns3::NetDevice> device,
 	Ptr<ns3::Packet> ns3Packet((ns3::Packet*)PeekPointer(packetIn));
 
 	ns3Packet->AddHeader(eeh);
-
+	
 	//Call P4Model receive packet, no return value
 	p4Model->ReceivePacket(ns3Packet, inPort, protocol, destination);
+	//p4Model->ReceivePacketOld(ns3Packet, inPort, protocol, destination);
 }
 
 void P4NetDevice::SendNs3Packet(Ptr<ns3::Packet> packetOut, int outPort, uint16_t protocol, Address const &destination)
@@ -152,8 +159,9 @@ void P4NetDevice::SendNs3Packet(Ptr<ns3::Packet> packetOut, int outPort, uint16_
 			Ptr<NetDevice> outNetDevice = GetBridgePort(outPort);
 			outNetDevice->Send(packetOut->Copy(), destination, protocol);
 		}
-		else
-			std::cout << "Drop Packet!!!(511)\n";
+		// else{
+		// 	std::cout << "drop 511" << std::endl;
+		// }
 	}
 	else
 		std::cout << "Null Packet!\n";

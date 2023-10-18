@@ -16,6 +16,7 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *
 * Author: PengKuang <kphf1995cm@outlook.com>
+* Modified: Ma Mingyu <myma979@gmail.com>
 */
 
 #ifndef GLOBAL_H
@@ -30,17 +31,16 @@ namespace ns3 {
 
 #define LOCAL_CALL 0
 #define RUNTIME_CLI 1
+#define NS3PIFOTM 2
 #define NS3 1
 #define P4Simulator 0
 
 // nf info
-unsigned const int ROUTER = 0;
-unsigned const int FIREWALL = 1;
-unsigned const int SILKROAD = 2;
-unsigned const int SIMPLE_ROUTER = 3;
-unsigned const int COUNTER = 4;
-unsigned const int METER = 5;
-unsigned const int REGISTER = 6;
+unsigned const int SIMPLESWITCH = 0;
+unsigned const int PRIORITYQUEUE = 1;
+unsigned const int SIMPLECODEL = 2;
+unsigned const int CODELPP = 3;
+
 // match type
 unsigned const int EXACT = 0;
 unsigned const int LPM = 1;
@@ -59,15 +59,21 @@ public:
 	//controller
 	static P4Controller g_p4Controller;
 
-	// siwtch info
+	// switch configuration info
 	static unsigned int g_networkFunc;
 	static std::string g_p4MatchTypePath;
 	static std::string g_flowTablePath;
 	static std::string g_viewFlowTablePath;
 	static std::string g_p4JsonPath;
 	static unsigned int g_populateFlowTableWay;
+	/**
+	 * @brief the bmv2 is not integrated into ns-3 fully, so the control
+	 * of the bottleneck needs to be set in bmv2 (by setting the packet 
+	 * processing speed of the switch).
+	 */
+	static int g_switchBottleNeck;
 
-	// path info
+	// configure file path info
 	static std::string g_homePath;
 	static std::string g_ns3RootName;
 	static std::string g_ns3SrcName;
@@ -75,6 +81,25 @@ public:
 	static std::string g_nfDir;
 	static std::string g_topoDir;
 	static std::string g_flowTableDir;
+
+	// ns-3 and p4 connect name
+	static std::string ns3i_drop_1;
+	static std::string ns3i_drop_2; 
+	static std::string ns3i_priority_id_1;
+	static std::string ns3i_priority_id_2;
+	static std::string ns3i_protocol_1;
+	static std::string ns3i_protocol_2;
+	static std::string ns3i_destination_1;
+	static std::string ns3i_destination_2;
+	static std::string ns3i_pkts_id_1;
+	static std::string ns3i_pkts_id_2;
+
+	// tracing info
+	static bool ns3_p4_tracing_dalay_sim;
+	static bool ns3_p4_tracing_dalay_ByteTag; // Byte Tag
+	static bool ns3_p4_tracing_control; // how the switch control the pkts
+	static bool ns3_p4_tracing_drop; // the pkts drop in and out switch
+
 
 	// runtime CLI wait time
 	static unsigned int g_runtimeCliTime;//s
