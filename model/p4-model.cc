@@ -32,7 +32,7 @@
 #include "ns3/simulator.h"
 // bmv2
 #include <bm/bm_sim/_assert.h>
-#include <bm/bm_sim/logger.h>
+// #include <bm/bm_sim/logger.h>
 #include <bm/bm_sim/parser.h>
 #include <bm/bm_sim/tables.h>
 
@@ -60,7 +60,6 @@ using namespace ns3;
 using bm::Switch;
 
 NS_OBJECT_ENSURE_REGISTERED(P4Model);
-// NS_LOG_COMPONENT_DEFINE(P4Model);
 
 // take out the handler from simple_switch
 namespace sswitch_runtime {
