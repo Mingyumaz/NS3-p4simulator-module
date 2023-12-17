@@ -40,8 +40,6 @@
 #include <stdexcept>
 #include <string>
 #include <array>
-#include <chrono>
-#include <thread>
 #include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,8 +58,8 @@ NS_LOG_COMPONENT_DEFINE("P4NetDevice");
 TypeId P4NetDevice::GetTypeId(void)
 {
 	static TypeId tid =
-		TypeId("ns3::P4NetDevice").SetParent<NetDevice>().SetGroupName("P4").AddConstructor<
-		P4NetDevice>().AddAttribute("Mtu",
+		TypeId("ns3::P4NetDevice").SetParent<NetDevice>().SetGroupName("P4")
+			.AddConstructor<P4NetDevice>().AddAttribute("Mtu",
 			"The MAC-level Maximum Transmission Unit",
 			UintegerValue(1500),
 			MakeUintegerAccessor(&P4NetDevice::SetMtu,
@@ -88,7 +86,8 @@ std::string exec(const char* cmd)
 P4NetDevice::P4NetDevice() :
 	m_node(0), m_ifIndex(0) {
 	NS_LOG_FUNCTION_NOARGS();
-	m_channel = CreateObject<BridgeChannel>();// Use BridgeChannel for prototype. Will develop P4 Channel in the future.
+	// Use BridgeChannel for prototype. Will develop P4 Channel in the future.
+	m_channel = CreateObject<BridgeChannel>();
 	P4SwitchInterface* p4Switch = P4GlobalVar::g_p4Controller.AddP4Switch();
 
 	p4Model = new P4Model(this);
@@ -105,7 +104,7 @@ P4NetDevice::P4NetDevice() :
 	char * args[2] = { NULL,a3 };
 	p4Model->init(2, args);
 
-	// start mutiple thread
+	// start the scheduler of the p4 model(p4 switch) (No multi-threading)
 	p4Model->start_and_return_();
 
 	// Init P4Model Flow Table
@@ -147,7 +146,8 @@ void P4NetDevice::ReceiveFromDevice(Ptr<ns3::NetDevice> device,
 	//p4Model->ReceivePacketOld(ns3Packet, inPort, protocol, destination);
 }
 
-void P4NetDevice::SendNs3Packet(Ptr<ns3::Packet> packetOut, int outPort, uint16_t protocol, Address const &destination)
+void P4NetDevice::SendNs3Packet(Ptr<ns3::Packet> packetOut, int outPort,
+								 uint16_t protocol, Address const &destination)
 {
 	if (packetOut)
 	{

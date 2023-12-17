@@ -504,11 +504,6 @@ void P4Model::start_and_return_()
         // NS_LOG_INFO ("Scheduling initial timer event using m_egressTimeReference = " << m_egressTimeReference.GetNanoSeconds() << " ns");
         m_transmitTimerEvent = Simulator::Schedule(m_transmitTimeReference, &P4Model::RunTransmitTimerEvent, this);
     }
-
-    // for (size_t i = 0; i < nb_egress_threads; i++) {
-    //     threads_.push_back(std::thread(&P4Model::egress_thread, this, i));
-    // }
-    // threads_.push_back(std::thread(&P4Model::transmit_thread, this)); // make this part with main thread
 }
 
 void P4Model::swap_notify_()
@@ -667,9 +662,6 @@ void P4Model::transmit_thread()
             ns3Packet.AddByteTag(rdjtag);
             tag_map.erase(src_pkt_id); // Clear the item to avoid excessive map
         }
-        // else {
-        //     std::cout << p4_switch_ID <<" No tag for sending out with id:" << src_pkt_id << std::endl;
-        // }
         m_tag_queue_mutex.unlock();
     }
 

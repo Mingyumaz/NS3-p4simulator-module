@@ -17,4 +17,6 @@ P4Simulator is a P4-driven network simulator aiming at combining P4, the state-o
 
 ## Get start!
 
-1. Install module into ns-3. see [NS3-p4simulator-install](https://github.com/Mingyumaz/NS3-p4simulator-install)
+
+1. First check the [NS3-p4simulator-install](https://github.com/Mingyumaz/NS3-p4simulator-install)
+2. Before you should install `bmv2`. For some reasons, now we still using the `thrift` tools interface of `bmv2`.
