@@ -31,20 +31,19 @@ namespace ns3 {
 		{
 			switch (m_exceptionCode)
 			{
+				case PARAMETER_NUM_ERROR:return "PARAMETER_NUM_ERROR";
+				case MATCH_KEY_NUM_ERROR:return "MATCH_KEY_NUM_ERROR";
+				case MATCH_KEY_TYPE_ERROR:return "MATCH_KEY_TYPE_ERROR";
+				case ACTION_DATA_NUM_ERROR:return "ACTION_DATA_NUM_ERROR";
+				case ACTION_DATA_TYPE_ERROR:return "ACTION_DATA_TYPE_ERROR";
+				case NO_SUCCESS:return "NO_SUCCESS";
+				case COMMAND_ERROR:return "COMMAND_ERROR";
+				case METER_NO_EXIST:return "METER_NO_EXIST";
+				case COUNTER_NO_EXIST:return "COUNTER_NO_EXIST";
+				case P4_SWITCH_POINTER_NULL:return "P4_SWITCH_POINTER_NULL";
+				case MATCH_TYPE_ERROR:return "MATCH_TYPE_ERROR";
 
-			case PARAMETER_NUM_ERROR:return "PARAMETER_NUM_ERROR";
-			case MATCH_KEY_NUM_ERROR:return "MATCH_KEY_NUM_ERROR";
-			case MATCH_KEY_TYPE_ERROR:return "MATCH_KEY_TYPE_ERROR";
-			case ACTION_DATA_NUM_ERROR:return "ACTION_DATA_NUM_ERROR";
-			case ACTION_DATA_TYPE_ERROR:return "ACTION_DATA_TYPE_ERROR";
-			case NO_SUCCESS:return "NO_SUCCESS";
-			case COMMAND_ERROR:return "COMMAND_ERROR";
-			case METER_NO_EXIST:return "METER_NO_EXIST";
-			case COUNTER_NO_EXIST:return "COUNTER_NO_EXIST";
-			case P4_SWITCH_POINTER_NULL:return "P4_SWITCH_POINTER_NULL";
-			case MATCH_TYPE_ERROR:return "MATCH_TYPE_ERROR";
-
-			default:return "OTHER_ERROR";
+				default:return "OTHER_ERROR";
 			}
 		}
 		std::string info()

@@ -11,6 +11,13 @@ namespace ns3 {
 	
 	class P4SwitchInterface;
 
+	/**
+	 * @brief Controller for P4Switch. (deprecated)
+	 * It can view all p4 switch flow table info, view p4 switch flow table info, 
+	 * set p4 switch view flow table path, set p4 switch flow table path, and get 
+	 * p4 switch num.
+	 * 
+	 */
 	class P4Controller :public Object
 	{
 

@@ -30,7 +30,7 @@
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/simulator.h"
-// bmv2
+
 #include <bm/bm_sim/_assert.h>
 // #include <bm/bm_sim/logger.h>
 #include <bm/bm_sim/parser.h>
@@ -322,50 +322,58 @@ P4Model::P4Model(P4NetDevice* netDevice, bool enable_swap,
 
 int P4Model::init(int argc, char* argv[])
 {
-
     // NS_LOG_FUNCTION(this);
-
     int status = 0;
-    // use local call to populate flowtable
+    //  Several methods of populating flowtable
     if (P4GlobalVar::g_populateFlowTableWay == LOCAL_CALL) {
-        // This mode can only deal with "exact" matching table, the "lpm" matching
-        // by now can not use. @todo -mingyu
+        /**
+         * @brief This mode can only deal with "exact" matching table, the "lpm" matching
+         * and other method can not use. @todo -mingyu
+         */
         status = this->InitFromCommandLineOptionsLocal(argc, argv, m_argParser);
     } else if (P4GlobalVar::g_populateFlowTableWay == RUNTIME_CLI) {
-
-        // start thrift server , use runtime_CLI populate flowtable
-        std::cout << "P4GlobalVar::g_populateFlowTableWay == RUNTIME_CLI" << std::endl;
-
-        /*
-        // This method is from src
-        // This will connect to the simple_switch thrift server and input the command.
-        // by now the bm::switch and the bm::simple_switch is not the same thing, so
-        // the "sswitch_runtime::get_handler()" by now can not use. @todo -mingyu
-
-        status = this->init_from_command_line_options(argc, argv, m_argParser);
-        int thriftPort = this->get_runtime_port();
-        std::cout << "thrift port : " << thriftPort << std::endl;
-        bm_runtime::start_server(this, thriftPort);
-        //NS_LOG_LOGIC("Wait " << P4GlobalVar::g_runtimeCliTime << " seconds for RuntimeCLI operations ");
-        std::this_thread::sleep_for(std::chrono::seconds(P4GlobalVar::g_runtimeCliTime));
-        //@todo BUG: THIS MAY CHANGED THE API
-        using ::sswitch_runtime::SimpleSwitchIf;
-        using ::sswitch_runtime::SimpleSwitchProcessor;
-        bm_runtime::add_service<SimpleSwitchIf, SimpleSwitchProcessor>(
-                "simple_switch", sswitch_runtime::get_handler(this));
-        */
+        /**
+         * @brief start thrift server , use runtime_CLI populate flowtable
+         * This method is from src
+         * This will connect to the simple_switch thrift server and input the command.
+         * by now the bm::switch and the bm::simple_switch is not the same thing, so
+         *  the "sswitch_runtime::get_handler()" by now can not use. @todo -mingyu
+         */
+        
+        // status = this->init_from_command_line_options(argc, argv, m_argParser);
+        // int thriftPort = this->get_runtime_port();
+        // std::cout << "thrift port : " << thriftPort << std::endl;
+        // bm_runtime::start_server(this, thriftPort);
+        // //NS_LOG_LOGIC("Wait " << P4GlobalVar::g_runtimeCliTime << " seconds for RuntimeCLI operations ");
+        // std::this_thread::sleep_for(std::chrono::seconds(P4GlobalVar::g_runtimeCliTime));
+        // //@todo BUG: THIS MAY CHANGED THE API
+        // using ::sswitch_runtime::SimpleSwitchIf;
+        // using ::sswitch_runtime::SimpleSwitchProcessor;
+        // bm_runtime::add_service<SimpleSwitchIf, SimpleSwitchProcessor>(
+        //         "simple_switch", sswitch_runtime::get_handler(this));
+        
     } else if (P4GlobalVar::g_populateFlowTableWay == NS3PIFOTM) {
 
-        // This method for setting the json file and populate the flow table taken from "ns3-PIFO-TM"
+        /**
+         * @brief This method for setting the json file and populate the flow table 
+         * It is taken from "ns3-PIFO-TM", check in github: https://github.com/PIFO-TM/ns3-bmv2 
+         * 
+         */
 
         static int thriftPort = 9090; // the thrift port will from 9090 increase with 1.
 
         //! ===== The first part: init the sw with json.
         bm::OptionsParser opt_parser;
         opt_parser.config_file_path = P4GlobalVar::g_p4JsonPath;
-        opt_parser.debugger_addr = std::string("ipc:///tmp/bmv2-") + std::to_string(thriftPort) + std::string("-debug.ipc");
-        opt_parser.notifications_addr = std::string("ipc:///tmp/bmv2-") + std::to_string(thriftPort) + std::string("-notifications.ipc");
-        opt_parser.file_logger = std::string("/tmp/bmv2-") + std::to_string(thriftPort) + std::string("-pipeline.log");
+        opt_parser.debugger_addr = std::string("ipc:///tmp/bmv2-") +
+                                    std::to_string(thriftPort) +
+                                    std::string("-debug.ipc");
+        opt_parser.notifications_addr = std::string("ipc:///tmp/bmv2-") +
+                                    std::to_string(thriftPort) +
+                                    std::string("-notifications.ipc");
+        opt_parser.file_logger = std::string("/tmp/bmv2-") +
+                                    std::to_string(thriftPort) +
+                                    std::string("-pipeline.log");
         opt_parser.thrift_port = thriftPort++;
         opt_parser.console_logging = true;
 
@@ -378,20 +386,19 @@ int P4Model::init(int argc, char* argv[])
         // ！======The second part: init the sw flow table settings.
         int port = get_runtime_port();
         bm_runtime::start_server(this, port);
-
-        /* @todo this should be added for start the thrift server*/
-        // using ::sswitch_runtime::SimpleSwitchIf;
-        // using ::sswitch_runtime::SimpleSwitchProcessor;
-        // bm_runtime::add_service<SimpleSwitchIf, SimpleSwitchProcessor>(
-        // "simple_switch", sswitch_runtime::get_handler(this));
-
         std::this_thread::sleep_for(std::chrono::seconds(P4GlobalVar::g_runtimeCliTime));
-
         // Run the CLI commands to populate table entries
-        std::string cmd = "python /home/p4/p4simulator/src/bmv2-tools/run_bmv2_CLI --thrift_port "
-            + std::to_string(port) + " " + P4GlobalVar::g_flowTablePath;
-        std::system(cmd.c_str());
-        // bm_runtime::stop_server(); // 关闭bm_runtime服务
+        // std::string cmd = "python /home/p4/p4simulator/src/bmv2-tools/run_bmv2_CLI --thrift_port "
+        //     + std::to_string(port) + " " + P4GlobalVar::g_flowTablePath; // This needs python support
+        std::string cmd = "simple_switch_CLI --thrift-port " + std::to_string(port)
+                         + " < " + P4GlobalVar::g_flowTablePath;
+        // std::string cmd = "simple_switch_CLI --thrift-port " + std::to_string(port)
+        //                  + " < " + P4GlobalVar::g_flowTablePath + " > /dev/null 2>&1"; // without output
+        int resultsys = std::system(cmd.c_str());
+        if (resultsys != 0) {
+            std::cerr << "Error executing command." << std::endl;
+        }
+        // bm_runtime::stop_server();
     } else {
         return -1;
     }
@@ -405,10 +412,9 @@ int P4Model::init(int argc, char* argv[])
 
 int P4Model::InitFromCommandLineOptionsLocal(int argc, char* argv[], bm::TargetParserBasic* tp)
 {
-    // NS_LOG_FUNCTION(this);
+
     bm::OptionsParser parser;
     parser.parse(argc, argv, tp);
-    // NS_LOG_LOGIC("parse pass");
     std::shared_ptr<bm::TransportIface> transport = nullptr;
     int status = 0;
     if (transport == nullptr) {
@@ -425,7 +431,7 @@ int P4Model::InitFromCommandLineOptionsLocal(int argc, char* argv[], bm::TargetP
         // with out p4-json, acctually the switch will wait for the configuration(p4-json) before work
         status = init_objects_empty(parser.device_id, transport);
     else
-        // load p4-json to switch
+        // load p4 configuration files xxxx.json to switch
         status = init_objects(parser.config_file_path, parser.device_id, transport);
     return status;
 }
@@ -435,9 +441,13 @@ int P4Model::InitFromCommandLineOptionsLocal(int argc, char* argv[], bm::TargetP
  */
 int P4Model::receive_(port_t port_num, const char* buffer, int len)
 {
-    // we limit the packet buffer to original size + 512 bytes, which means we
-    // cannot add more than 512 bytes of header data to the packet, which should
-    // be more than enough
+    
+    /**
+     * @brief we limit the packet buffer to original size + 512 bytes, 
+     * which means we cannot add more than 512 bytes of header data 
+     * to the packet, which should be more than enough
+     * 
+     */
     auto packet = new_packet_ptr(port_num, packet_id++, len,
         bm::PacketBuffer(len + 512, buffer, len));
 
@@ -448,7 +458,6 @@ int P4Model::receive_(port_t port_num, const char* buffer, int len)
     phv->reset_metadata();
     RegisterAccess::clear_all(packet.get());
 
-    // setting standard metadata
     phv->get_field("standard_metadata.ingress_port").set(port_num);
     // using packet register 0 to store length, this register will be updated for
     // each add_header / remove_header primitive call
@@ -1359,16 +1368,18 @@ int P4Model::ReceivePacket(Ptr<ns3::Packet> packetIn, int inPort,
     return -1;
 }
 
+/**
+ * @brief Schedule the ingress part to run, and schedule 
+ * the next timer event with loops.
+ */
 void P4Model::RunIngressTimerEvent()
 {
-    // NS_LOG_FUNCTION (this);
-    // NS_LOG_INFO ("Executing timer event for Ingress_thread");
     size_t size = input_buffer->get_size();
     if (size > 0) {
         this->ingress_thread();
     }
     if (size > 10) {
-        // Reschedule timer event
+        // Reschedule timer event @todo: change the time
         m_ingressTimerEvent = Simulator::Schedule(Time("100us"), &P4Model::RunIngressTimerEvent, this);
     } else {
         // Reschedule timer event
@@ -1376,29 +1387,34 @@ void P4Model::RunIngressTimerEvent()
     }
 }
 
+/**
+ * @brief Schedule the egress part to run, and schedule 
+ * the next timer event with loops.
+ */
 void P4Model::RunEgressTimerEvent()
 {
-    // NS_LOG_FUNCTION (this);
-    // NS_LOG_INFO ("Executing timer event for Egress_thread");
-
     this->egress_thread(worker_id);
-
     // Reschedule timer event
     m_egressTimerEvent = Simulator::Schedule(m_egressTimeReference, &P4Model::RunEgressTimerEvent, this);
 }
 
+/**
+ * @brief Schedule the transmit part to run, and schedule 
+ * the next timer event with loops.
+ */
 void P4Model::RunTransmitTimerEvent()
 {
-    // NS_LOG_FUNCTION (this);
-    // NS_LOG_INFO ("Executing timer event for Egress_thread");
-
     this->transmit_thread();
-
     // Reschedule timer event
     m_transmitTimerEvent = Simulator::Schedule(m_transmitTimeReference, &P4Model::RunTransmitTimerEvent, this);
 }
 
+/**
+ * @brief Get the time it takes for a packet to go from being 
+ * received by the route to the middle of the egress.
+ * @return ts_res simulation time
+ */
 ts_res P4Model::get_ts() const
 {
-    return duration_cast<ts_res>(clock::now() - start); // rewrite? check out the point
+    return duration_cast<ts_res>(clock::now() - start);
 }
