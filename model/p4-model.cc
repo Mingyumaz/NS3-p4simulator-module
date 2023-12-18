@@ -344,8 +344,6 @@ int P4Model::init(int argc, char* argv[])
         // int thriftPort = this->get_runtime_port();
         // std::cout << "thrift port : " << thriftPort << std::endl;
         // bm_runtime::start_server(this, thriftPort);
-        // //NS_LOG_LOGIC("Wait " << P4GlobalVar::g_runtimeCliTime << " seconds for RuntimeCLI operations ");
-        // std::this_thread::sleep_for(std::chrono::seconds(P4GlobalVar::g_runtimeCliTime));
         // //@todo BUG: THIS MAY CHANGED THE API
         // using ::sswitch_runtime::SimpleSwitchIf;
         // using ::sswitch_runtime::SimpleSwitchProcessor;
@@ -362,7 +360,6 @@ int P4Model::init(int argc, char* argv[])
 
         static int thriftPort = 9090; // the thrift port will from 9090 increase with 1.
 
-        //! ===== The first part: init the sw with json.
         bm::OptionsParser opt_parser;
         opt_parser.config_file_path = P4GlobalVar::g_p4JsonPath;
         opt_parser.debugger_addr = std::string("ipc:///tmp/bmv2-") +
@@ -383,17 +380,15 @@ int P4Model::init(int argc, char* argv[])
             std::exit(status);
         }
 
-        // ！======The second part: init the sw flow table settings.
         int port = get_runtime_port();
         bm_runtime::start_server(this, port);
-        std::this_thread::sleep_for(std::chrono::seconds(P4GlobalVar::g_runtimeCliTime));
-        // Run the CLI commands to populate table entries
-        // std::string cmd = "python /home/p4/p4simulator/src/bmv2-tools/run_bmv2_CLI --thrift_port "
-        //     + std::to_string(port) + " " + P4GlobalVar::g_flowTablePath; // This needs python support
-        std::string cmd = "simple_switch_CLI --thrift-port " + std::to_string(port)
-                         + " < " + P4GlobalVar::g_flowTablePath;
+        
         // std::string cmd = "simple_switch_CLI --thrift-port " + std::to_string(port)
-        //                  + " < " + P4GlobalVar::g_flowTablePath + " > /dev/null 2>&1"; // without output
+        //                  + " < " + P4GlobalVar::g_flowTablePath; // this will have 
+        // log file output for tables
+
+        std::string cmd = "simple_switch_CLI --thrift-port " + std::to_string(port)
+                         + " < " + P4GlobalVar::g_flowTablePath + " > /dev/null 2>&1";
         int resultsys = std::system(cmd.c_str());
         if (resultsys != 0) {
             std::cerr << "Error executing command." << std::endl;
@@ -489,20 +484,26 @@ void P4Model::start_and_return_()
 
     // start the ingress local thread
     if (!m_ingressTimeReference.IsZero()) {
-        // NS_LOG_INFO ("Scheduling initial timer event using m_ingressTimeReference = " << m_ingressTimeReference.GetNanoSeconds() << " ns");
-        m_ingressTimerEvent = Simulator::Schedule(m_ingressTimeReference, &P4Model::RunIngressTimerEvent, this);
+        // NS_LOG_INFO ("Scheduling initial timer event using m_ingressTimeReference = "
+            // << m_ingressTimeReference.GetNanoSeconds() << " ns");
+        m_ingressTimerEvent = Simulator::Schedule(m_ingressTimeReference, 
+                                        &P4Model::RunIngressTimerEvent, this);
     }
 
     // start the egress local thread
     if (!m_egressTimeReference.IsZero()) {
-        // NS_LOG_INFO ("Scheduling initial timer event using m_egressTimeReference = " << m_egressTimeReference.GetNanoSeconds() << " ns");
-        m_egressTimerEvent = Simulator::Schedule(m_egressTimeReference, &P4Model::RunEgressTimerEvent, this);
+        // NS_LOG_INFO ("Scheduling initial timer event using m_egressTimeReference = "
+            // << m_egressTimeReference.GetNanoSeconds() << " ns");
+        m_egressTimerEvent = Simulator::Schedule(m_egressTimeReference, 
+                                        &P4Model::RunEgressTimerEvent, this);
     }
 
     // start the transmit local thread
     if (!m_egressTimeReference.IsZero()) {
-        // NS_LOG_INFO ("Scheduling initial timer event using m_egressTimeReference = " << m_egressTimeReference.GetNanoSeconds() << " ns");
-        m_transmitTimerEvent = Simulator::Schedule(m_transmitTimeReference, &P4Model::RunTransmitTimerEvent, this);
+        // NS_LOG_INFO ("Scheduling initial timer event using m_egressTimeReference = "
+            // << m_egressTimeReference.GetNanoSeconds() << " ns");
+        m_transmitTimerEvent = Simulator::Schedule(m_transmitTimeReference, 
+                                        &P4Model::RunTransmitTimerEvent, this);
     }
 }
 
@@ -690,7 +691,8 @@ void P4Model::transmit_thread()
             std::string filename = "./scratch-data/p4-codel/sim_delay_out_switch_1.csv";
             std::ofstream sim_delay_file(filename, std::ios::app);
             if (sim_delay_file.is_open()) {
-                sim_delay_file << "SimOut," << src_pkt_id << "," << priority << "," << Simulator::Now() << std::endl;
+                sim_delay_file << "SimOut," << src_pkt_id << "," << 
+                                priority << "," << Simulator::Now() << std::endl;
             }
             sim_delay_file.close();
         }
@@ -713,7 +715,8 @@ void P4Model::transmit_thread()
             std::string filename = "./scratch-data/p4-codel/sim_delay_out_switch_2.csv";
             std::ofstream sim_delay_file(filename, std::ios::app);
             if (sim_delay_file.is_open()) {
-                sim_delay_file << "SimOut," << src_pkt_id << "," << priority << "," << Simulator::Now() << std::endl;
+                sim_delay_file << "SimOut," << src_pkt_id << "," << 
+                                priority << "," << Simulator::Now() << std::endl;
             }
             sim_delay_file.close();
         }
@@ -737,7 +740,15 @@ void P4Model::transmit_thread()
                     int x5 = egress_buffers.size(5);
                     int x6 = egress_buffers.size(6);
                     int x7 = egress_buffers.size(7);
-                    dropFile << tracing_total_in_pkts << "," << tracing_total_out_pkts << "," << tracing_ingress_total_pkts << "," << tracing_ingress_drop << "," << tracing_egress_total_pkts << "," << tracing_egress_drop << "," << x0 << "," << x1 << "," << x2 << "," << x3 << "," << x4 << "," << x5 << "," << x6 << "," << x7 << "," << Simulator::Now() << std::endl;
+                    dropFile << tracing_total_in_pkts << "," << 
+                            tracing_total_out_pkts << "," << 
+                            tracing_ingress_total_pkts << "," << 
+                            tracing_ingress_drop << "," << 
+                            tracing_egress_total_pkts << "," << 
+                            tracing_egress_drop << "," << x0 << 
+                            "," << x1 << "," << x2 << "," << x3 << 
+                            "," << x4 << "," << x5 << "," << x6 << 
+                            "," << x7 << "," << Simulator::Now() << std::endl;
                 }
                 dropFile.close();
             }
@@ -745,7 +756,13 @@ void P4Model::transmit_thread()
                 std::string filename = "./scratch-data/p4-codel/control_tracing_2.csv";
                 std::ofstream dropFile(filename, std::ios::app);
                 if (dropFile.is_open()) {
-                    dropFile << tracing_total_in_pkts << "," << tracing_total_out_pkts << "," << tracing_ingress_total_pkts << "," << tracing_ingress_drop << "," << tracing_egress_total_pkts << "," << tracing_egress_drop << "," << Simulator::Now() << std::endl;
+                    dropFile << tracing_total_in_pkts << "," << 
+                    tracing_total_out_pkts << "," << 
+                    tracing_ingress_total_pkts << "," << 
+                    tracing_ingress_drop << "," << 
+                    tracing_egress_total_pkts << "," <<
+                    tracing_egress_drop << "," << 
+                    Simulator::Now() << std::endl;
                 }
                 dropFile.close();
             }
@@ -766,7 +783,8 @@ void P4Model::enqueue(port_t egress_port, std::unique_ptr<bm::Packet>&& packet)
             .set(egress_buffers.size(egress_port));
     }
 
-    size_t priority = phv->has_field(SSWITCH_PRIORITY_QUEUEING_SRC) ? phv->get_field(SSWITCH_PRIORITY_QUEUEING_SRC).get<size_t>() : 0u;
+    size_t priority = phv->has_field(SSWITCH_PRIORITY_QUEUEING_SRC) ? 
+                        phv->get_field(SSWITCH_PRIORITY_QUEUEING_SRC).get<size_t>() : 0u;
     if (priority >= nb_queues_per_port) {
         bm::Logger::get()->error("Priority out of range, dropping packet");
         return;
@@ -1088,7 +1106,8 @@ void P4Model::egress_thread(size_t worker_id)
             std::string filename = "./scratch-data/p4-codel/sim_out_queue_1.csv";
             std::ofstream sim_delay_file(filename, std::ios::app);
             if (sim_delay_file.is_open()) {
-                sim_delay_file << "SimQOut," << src_pkt_id << "," << priority << "," << Simulator::Now() << std::endl;
+                sim_delay_file << "SimQOut," << src_pkt_id << "," << priority << 
+                                "," << Simulator::Now() << std::endl;
             }
             sim_delay_file.close();
         }
@@ -1111,7 +1130,8 @@ void P4Model::egress_thread(size_t worker_id)
             std::string filename = "./scratch-data/p4-codel/sim_out_queue_2.csv";
             std::ofstream sim_delay_file(filename, std::ios::app);
             if (sim_delay_file.is_open()) {
-                sim_delay_file << "SimQOut," << src_pkt_id << "," << priority << "," << Simulator::Now() << std::endl;
+                sim_delay_file << "SimQOut," << src_pkt_id << "," << priority << 
+                                "," << Simulator::Now() << std::endl;
             }
             sim_delay_file.close();
         }

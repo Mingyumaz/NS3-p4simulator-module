@@ -76,13 +76,8 @@ int main (int argc, char *argv[])
   
   P4GlobalVar::g_nfDir=P4GlobalVar::g_homePath+P4GlobalVar::g_ns3RootName+P4GlobalVar::g_ns3SrcName+"src/p4simulator/test/";
   P4GlobalVar::g_nsType=P4Simulator;
-  P4GlobalVar::g_runtimeCliTime=10;
   SwitchApi::InitApiMap();
   
-
-  CommandLine cmd;
-  cmd.AddValue("time", "Waiting time for Runtime CLI Operations", P4GlobalVar::g_runtimeCliTime);
-  cmd.Parse (argc, argv);
   ////NS_LOG_INFO ("Create nodes.");
   NodeContainer terminals;
   terminals.Create (4);

@@ -100,10 +100,6 @@ public:
 	static bool ns3_p4_tracing_control; // how the switch control the pkts
 	static bool ns3_p4_tracing_drop; // the pkts drop in and out switch
 
-
-	// runtime CLI wait time
-	static unsigned int g_runtimeCliTime;//s
-
 	static std::map<std::string,unsigned int> g_nfStrUintMap;	
 	//set g_p4MatchTypePath,g_p4JsonPath according to g_networkFunc
 	static void SetP4MatchTypeJsonPath();

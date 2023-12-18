@@ -89,7 +89,6 @@ int main(int argc, char* argv[])
     P4GlobalVar::g_nfDir = P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName + P4GlobalVar::g_ns3SrcName + "src/p4simulator/test/";
     P4GlobalVar::g_topoDir = P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName + P4GlobalVar::g_ns3SrcName + "src/p4simulator/topo/";
     P4GlobalVar::g_nsType = P4Simulator; // NS3 / P4Simulator
-    P4GlobalVar::g_runtimeCliTime = 10;
     SwitchApi::InitApiMap();
     P4GlobalVar::InitNfStrUintMap();
 
