@@ -51,7 +51,6 @@ def build(bld):
         'model/p4-switch-interface.h',
 	'model/p4-model.h',
         'model/p4-net-device.h',
-        'model/p4.h',
 	'model/helper.h',
         'helper/p4-helper.h',
         'helper/p4-topology-reader-helper.h',

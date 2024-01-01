@@ -32,7 +32,6 @@
 #include "ns3/simulator.h"
 
 #include <bm/bm_sim/_assert.h>
-// #include <bm/bm_sim/logger.h>
 #include <bm/bm_sim/parser.h>
 #include <bm/bm_sim/tables.h>
 
@@ -480,8 +479,6 @@ void P4Model::start_and_return_()
 {
     check_queueing_metadata();
 
-    // threads_.push_back(std::thread(&P4Model::ingress_thread, this));
-
     // start the ingress local thread
     if (!m_ingressTimeReference.IsZero()) {
         // NS_LOG_INFO ("Scheduling initial timer event using m_ingressTimeReference = "
@@ -527,9 +524,6 @@ P4Model::~P4Model()
             continue;
     }
     output_buffer.push_front(nullptr);
-    // for (auto& thread_ : threads_) {
-    //     thread_.join();
-    // }
 }
 
 void P4Model::reset_target_state_()

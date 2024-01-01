@@ -44,7 +44,6 @@
 #include <bm/bm_sim/simple_pre_lag.h>
 #include <bm/bm_sim/parser.h>
 #include <bm/bm_sim/tables.h>
-#include <bm/bm_sim/logger.h>
 #include <fstream>
 #include <mutex>
 #include <memory>
@@ -744,7 +743,6 @@ class P4Model : public Switch {
 	
 	private:
 		port_t drop_port;
-		std::vector<std::thread> threads_;
 		std::unique_ptr<InputBuffer> input_buffer;
 		// for these queues, the write operation is non-blocking and we drop the
 		// packet if the queue is full

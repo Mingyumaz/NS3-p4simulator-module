@@ -94,7 +94,6 @@ P4NetDevice::P4NetDevice() :
 
 	p4Switch->SetP4Model(p4Model);
 	p4Switch->SetJsonPath(P4GlobalVar::g_p4JsonPath);
-	p4Switch->SetP4InfoPath(P4GlobalVar::g_p4MatchTypePath);
 	p4Switch->SetFlowTablePath(P4GlobalVar::g_flowTablePath);
 	p4Switch->SetViewFlowTablePath(P4GlobalVar::g_viewFlowTablePath);
 	p4Switch->SetNetworkFunc(P4GlobalVar::g_networkFunc);
@@ -159,9 +158,6 @@ void P4NetDevice::SendNs3Packet(Ptr<ns3::Packet> packetOut, int outPort,
 			Ptr<NetDevice> outNetDevice = GetBridgePort(outPort);
 			outNetDevice->Send(packetOut->Copy(), destination, protocol);
 		}
-		// else{
-		// 	std::cout << "drop 511" << std::endl;
-		// }
 	}
 	else
 		std::cout << "Null Packet!\n";

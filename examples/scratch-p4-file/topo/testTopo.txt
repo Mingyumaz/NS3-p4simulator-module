@@ -1,0 +1,14 @@
+3 8 10
+3 h 0 s  
+4 h 0 s  
+5 h 1 s  
+6 h 1 s  
+7 h 1 s  
+0 s 1 s  
+8 h 2 s  
+9 h 2 s  
+10 h 2 s  
+0 s 2 s  
+0 SIMPLE_ROUTER
+1 SIMPLE_ROUTER
+2 SIMPLE_ROUTER

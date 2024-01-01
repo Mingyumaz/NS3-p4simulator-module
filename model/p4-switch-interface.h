@@ -76,11 +76,6 @@ namespace ns3 {
 			m_jsonPath = path;
 		}
 
-		void SetP4InfoPath(const std::string& path)
-		{
-			m_p4InfoPath = path;
-		}
-
 		void SetFlowTablePath(const std::string& path)
 		{
 			m_flowTablePath = path;
