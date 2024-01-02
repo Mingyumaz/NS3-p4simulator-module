@@ -81,6 +81,8 @@ public:
   static std::string g_nfDir;
   static std::string g_topoDir;
   static std::string g_flowTableDir;
+  static std::string g_exampleP4SrcDir;
+
 
   // ns-3 and p4 connect name
   static std::string ns3i_drop_1;
@@ -95,6 +97,7 @@ public:
   static std::string ns3i_pkts_id_2;
 
   // tracing info
+  static bool ns3_inner_p4_tracing;
   static bool ns3_p4_tracing_dalay_sim;
   static bool ns3_p4_tracing_dalay_ByteTag; // Byte Tag
   static bool ns3_p4_tracing_control;       // how the switch control the pkts

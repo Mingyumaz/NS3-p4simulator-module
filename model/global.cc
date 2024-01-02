@@ -20,6 +20,7 @@ int P4GlobalVar::g_switchBottleNeck = 900;
 std::string P4GlobalVar::g_homePath = "/home/p4/";
 std::string P4GlobalVar::g_ns3RootName = "/";
 std::string P4GlobalVar::g_ns3SrcName = "p4simulator/";
+
 std::string P4GlobalVar::g_nfDir =
     P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName +
     P4GlobalVar::g_ns3SrcName + "scratch-p4-file/p4src";
@@ -29,6 +30,10 @@ std::string P4GlobalVar::g_topoDir =
 std::string P4GlobalVar::g_flowTableDir =
     P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName +
     P4GlobalVar::g_ns3SrcName + "scratch-p4-file/flowtable/";
+std::string P4GlobalVar::g_exampleP4SrcDir =
+    P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName +
+    P4GlobalVar::g_ns3SrcName + "src/p4simulator/examples/p4src/";
+
 
 unsigned int P4GlobalVar::g_nsType = P4Simulator;
 std::map<std::string, unsigned int> P4GlobalVar::g_nfStrUintMap;
@@ -54,6 +59,8 @@ std::string P4GlobalVar::ns3i_pkts_id_2 =
     "scalars.userMetadata._ns3i_pkts_id18";
 
 // tracing info
+
+bool P4GlobalVar::ns3_inner_p4_tracing = false;
 bool P4GlobalVar::ns3_p4_tracing_dalay_sim = false;
 bool P4GlobalVar::ns3_p4_tracing_dalay_ByteTag = false; // Byte Tag
 bool P4GlobalVar::ns3_p4_tracing_control =

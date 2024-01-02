@@ -84,11 +84,39 @@ int main (int argc, char *argv[]) {
     Ptr<Node> switchNode = csmaSwitch.Get(0);
 
     if (p4) {
+        // NS_LOG_INFO("Using P4 switch");
         P4Helper bridge;
-        // this is the path of the p4 program
+
+        // configuration for the p4 switch initation
+        P4GlobalVar::g_networkFunc = SIMPLESWITCH;
+        P4GlobalVar::g_populateFlowTableWay=NS3PIFOTM;
         P4GlobalVar::SetP4MatchTypeJsonPath();
-        P4GlobalVar::g_p4JsonPath = "codelp/codel.json";
-        P4GlobalVar::g_flowTableDir = "/home/p4/p4simulator/scratch-p4-file/p4src/codelp/flowtable/";
+        P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "p4-echo-server/p4-echo-server.json";
+        P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "/p4-echo-server/flowtable/";
+        P4GlobalVar::g_flowTablePath = P4GlobalVar::g_flowTableDir + "CLI1";
+
+        // configuration for the connection between of ns3 and p4
+        P4GlobalVar::ns3i_drop_1 = "scalars.userMetadata._ns3i_ns3_drop1";
+        P4GlobalVar::ns3i_priority_id_1 =
+            "scalars.userMetadata._ns3i_ns3_priority_id2";
+        P4GlobalVar::ns3i_protocol_1 =
+            "scalars.userMetadata._ns3i_protocol3";
+        P4GlobalVar::ns3i_destination_1 =
+            "scalars.userMetadata._ns3i_destination4";
+        P4GlobalVar::ns3i_pkts_id_1 =
+            "scalars.userMetadata._ns3i_pkts_id5";
+
+        // configuration for the tracing info
+        P4GlobalVar::ns3_inner_p4_tracing = false;
+        P4GlobalVar::ns3_p4_tracing_dalay_sim = false;
+        P4GlobalVar::ns3_p4_tracing_dalay_ByteTag = false; // Byte Tag
+        P4GlobalVar::ns3_p4_tracing_control =
+            false; // how the switch control the pkts
+        P4GlobalVar::ns3_p4_tracing_drop =
+            false; // the pkts drop in and out switch
+        
+        std::cout << "P4GlobalVar::g_p4JsonPath: " << P4GlobalVar::g_p4JsonPath << std::endl;
+        std::cout << "P4GlobalVar::g_flowTablePath: " << P4GlobalVar::g_flowTablePath << std::endl;
 
         // NS_LOG_INFO("P4 bridge established");
         bridge.Install (switchNode, switchDevices);
@@ -110,7 +138,7 @@ int main (int argc, char *argv[]) {
 
     ApplicationContainer serverApps = echoServer.Install(nodes.Get(0));
     serverApps.Start (Seconds(1.0));
-    serverApps.Stop (Seconds(10.0));
+    serverApps.Stop (Seconds(4.0));
 
     UdpEchoClientHelper echoClient (addresses.GetAddress(0), 9);
     echoClient.SetAttribute ("MaxPackets", UintegerValue(1));
@@ -119,11 +147,11 @@ int main (int argc, char *argv[]) {
 
     ApplicationContainer clientApps = echoClient.Install (nodes.Get(1));
     clientApps.Start (Seconds (2.0));
-    clientApps.Stop (Seconds (10.0));
+    clientApps.Stop (Seconds (4.0));
 
     // Packet::EnablePrinting ();
 
-    csma.EnablePcapAll("p4-test", true);
+    csma.EnablePcapAll("P4EchoServer", true);
 
     Simulator::Run ();
     Simulator::Destroy ();
