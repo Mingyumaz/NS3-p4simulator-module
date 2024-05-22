@@ -1,26 +1,6 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/*
- * Copyright (c) YEAR COPYRIGHTHOLDER
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Author: PengKuang <kphf1995cm@outlook.com>
- * Modified: Ma Mingyu <mingyu.ma@tu-dresden.de>
- */
-
 #ifndef GLOBAL_H
 #define GLOBAL_H
+
 #include "ns3/object.h"
 #include "ns3/p4-controller.h"
 #include <cstring>
@@ -29,57 +9,70 @@
 
 namespace ns3 {
 
-#define LOCAL_CALL 0
-#define RUNTIME_CLI 1
-#define NS3PIFOTM 2
-#define NS3 1
-#define P4Simulator 0
+// Method to configure the flow table in P4 switch
+#define LOCAL_CALL 0  // Local call to configure the flow table
+#define RUNTIME_CLI 1 // Use runtime CLI to configure the flow table
+#define NS3PIFOTM 2   // Use thrift port to configure the flow table
 
-// nf info
-unsigned const int ROUTER = 0;
-unsigned const int FIREWALL = 1;
-unsigned const int SILKROAD = 2;
-unsigned const int SIMPLE_ROUTER = 3;
-unsigned const int COUNTER = 4;
-unsigned const int METER = 5;
-unsigned const int REGISTER = 6;
-unsigned const int SIMPLESWITCH = 7;
-unsigned const int PRIORITYQUEUE = 8;
-unsigned const int SIMPLECODEL = 9;
-unsigned const int CODELPP = 10;
+// Network function type
+#define NS3 1         // Normal switch
+#define P4Simulator 0 // P4 switch
 
-// match type
-unsigned const int EXACT = 0;
-unsigned const int LPM = 1;
-unsigned const int TERNARY = 2;
-unsigned const int VALID = 3;
-unsigned const int RANGE = 4;
+// P4 example number
+const unsigned int ROUTER = 0;
+const unsigned int FIREWALL = 1;
+const unsigned int SILKROAD = 2;
+const unsigned int SIMPLE_ROUTER = 3;
+const unsigned int COUNTER = 4;
+const unsigned int METER = 5;
+const unsigned int REGISTER = 6;
+const unsigned int SIMPLESWITCH = 7;
+const unsigned int PRIORITYQUEUE = 8;
+const unsigned int SIMPLECODEL = 9;
+const unsigned int CODELPP = 10;
 
-// get current time (ms)
+// Match type in the table of the P4 switch
+const unsigned int EXACT = 0;
+const unsigned int LPM = 1;
+const unsigned int TERNARY = 2;
+const unsigned int VALID = 3;
+const unsigned int RANGE = 4;
+
+// Get current time (ms)
 unsigned long getTickCount(void);
 
 class P4Controller;
+
 class P4GlobalVar : public Object {
 public:
   static TypeId GetTypeId(void);
-  // controller
+
+  // Controller
   static P4Controller g_p4Controller;
 
-  // switch configuration info
+  // Switch configuration info
   static unsigned int g_networkFunc;
   static std::string g_p4MatchTypePath;
   static std::string g_flowTablePath;
   static std::string g_viewFlowTablePath;
   static std::string g_p4JsonPath;
   static unsigned int g_populateFlowTableWay;
+
   /**
-   * @brief the bmv2 is not integrated into ns-3 fully, so the control
-   * of the bottleneck needs to be set in bmv2 (by setting the packet
-   * processing speed of the switch).
+   * @brief For the scheduling algorithm, the BMv2 switch is using
+   * non-work-conserving method, it sets the time for packet departure, which
+   * may pend the packet and leave the link idle to shape the traffic [Related
+   * paper: BMW Tree: Large-scale, High-throughput and Modular PIFO
+   * Implementation using Balanced Multi-Way Sorting Tree]. There are actually
+   * many scheduling algorithms but this simulator does not implement them.
+   *
+   * The BMv2 is not integrated into ns-3 fully, so the control
+   * of the bottleneck needs to be set in BMv2 (by setting the packet scheduling
+   * speed of the switch).
    */
   static int g_switchBottleNeck;
 
-  // configure file path info
+  // Configure file path info
   static std::string g_homePath;
   static std::string g_ns3RootName;
   static std::string g_ns3SrcName;
@@ -89,7 +82,7 @@ public:
   static std::string g_flowTableDir;
   static std::string g_exampleP4SrcDir;
 
-  // ns-3 and p4 connect name
+  // ns-3 and P4 connect name
   static std::string ns3i_drop_1;
   static std::string ns3i_drop_2;
   static std::string ns3i_priority_id_1;
@@ -101,12 +94,12 @@ public:
   static std::string ns3i_pkts_id_1;
   static std::string ns3i_pkts_id_2;
 
-  // tracing info
+  // Tracing info
   static bool ns3_inner_p4_tracing;
   static bool ns3_p4_tracing_dalay_sim;
   static bool ns3_p4_tracing_dalay_ByteTag; // Byte Tag
-  static bool ns3_p4_tracing_control;       // how the switch control the pkts
-  static bool ns3_p4_tracing_drop;          // the pkts drop in and out switch
+  static bool ns3_p4_tracing_control; // How the switch controls the packets
+  static bool ns3_p4_tracing_drop;    // Packets drop in and out of the switch
 
   static std::map<std::string, unsigned int> g_nfStrUintMap;
   static void SetP4MatchTypeJsonPath();
@@ -118,5 +111,7 @@ private:
   P4GlobalVar(const P4GlobalVar &);
   P4GlobalVar &operator=(const P4GlobalVar &);
 };
+
 } // namespace ns3
-#endif /*GLOBAL_H*/
+
+#endif /* GLOBAL_H */

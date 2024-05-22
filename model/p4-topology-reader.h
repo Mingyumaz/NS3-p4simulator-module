@@ -1,249 +1,240 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
-* Copyright (c)
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License version 2 as
-* published by the Free Software Foundation;
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*
-* Author:
-*/
+ * Copyright (c) 2010 Universita' di Firenze, Italy
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Author: Tommaso Pecorella (tommaso.pecorella@unifi.it)
+ * Author: Valerio Sartini (valesar@gmail.com)
+ */
 
 #ifndef P4_TOPOLOGY_READER_H
 #define P4_TOPOLOGY_READER_H
 
-#include <string>
-#include <map>
-#include <list>
-#include <vector>
-#include "ns3/object.h"
 #include "ns3/node-container.h"
-
+#include "ns3/object.h"
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace ns3 {
 
-	/**
-	* \ingroup topology
-	*
-	* \brief Interface for input file readers management.
-	*
-	* This interface perform the shared tasks among all possible input file readers.
-	* Each different file format is handled by its own topology reader.
-	*/
-	class P4TopologyReader : public Object
-	{
+/**
+ * \ingroup topology
+ *
+ * \brief Interface for input file readers management.
+ *
+ * This interface perform the shared tasks among all possible input file
+ * readers. Each different file format is handled by its own topology reader.
+ */
+class P4TopologyReader : public Object {
 
-	public:
-		/**
-		* \brief Inner class holding the details about a link between two nodes.
-		*
-		* The link is not described in terms of technology. Rather it is only stating
-		* an association between two nodes. The nodes are characterized also with names
-		* reflecting how the nodes are called in the original topology file.
-		*/
-		class Link
-		{
-		public:
-			
-			/**
-			* \brief Constant iterator to scan the map of link attributes.
-			*/
-			typedef std::map<std::string, std::string>::const_iterator ConstAttributesIterator_t;
-			Link(Ptr<Node> fromPtr, unsigned int fromIndex, char fromType, Ptr<Node> toPtr,unsigned int toIndex,char toType);
-			
-			/**
-			* \brief Returns a Ptr<Node> to the "from" node of the link.
-			* \return A Ptr<Node> to the "from" node of the link.
-			*/
-			Ptr<Node> GetFromNode(void) const;
-			
-			/**
-			* \brief Returns a Ptr<Node> to the "to" node of the link.
-			* \return A Ptr<Node> to the "to" node of the link.
-			*/
-			Ptr<Node> GetToNode(void) const;
+public:
+  /**
+   * \brief Inner class holding the details about a link between two nodes.
+   *
+   * The link is not described in terms of technology. Rather it is only stating
+   * an association between two nodes. The nodes are characterized also with
+   * names reflecting how the nodes are called in the original topology file.
+   */
+  class Link {
+  public:
+    /**
+     * \brief Constant iterator to scan the map of link attributes.
+     */
+    typedef std::map<std::string, std::string>::const_iterator
+        ConstAttributesIterator_t;
+    Link(Ptr<Node> fromPtr, unsigned int fromIndex, char fromType,
+         Ptr<Node> toPtr, unsigned int toIndex, char toType);
 
-			char GetFromType(void) const;
-			char GetToType(void) const;
-			
-			unsigned int GetFromIndex(void) const;
-			unsigned int GetToIndex(void) const;
+    /**
+     * \brief Returns a Ptr<Node> to the "from" node of the link.
+     * \return A Ptr<Node> to the "from" node of the link.
+     */
+    Ptr<Node> GetFromNode(void) const;
 
-			/**
-			* \brief Returns the value of a link attribute. The attribute must exist.
-			* \param [in] name the name of the attribute.
-			* \return The value of the attribute.
-			*/
-			std::string GetAttribute(const std::string &name) const;
-			/**
-			* \brief Returns the value of a link attribute.
-			* \param [in] name The name of the attribute.
-			* \param [out] value The value of the attribute.
-			*
-			* \return True if the attribute was defined, false otherwise.
-			*/
-			bool GetAttributeFailSafe(const std::string &name, std::string &value) const;
-			/**
-			* \brief Sets an arbitrary link attribute.
-			* \param [in] name The name of the attribute.
-			* \param [in] value The value of the attribute.
-			*/
-			void SetAttribute(const std::string &name, const std::string &value);
-			/**
-			* \brief Returns an iterator to the begin of the attributes.
-			* \return A const iterator to the first attribute of a link.
-			*/
-			ConstAttributesIterator_t AttributesBegin(void) const;
-			/**
-			* \brief Returns an iterator to the end of the attributes.
-			* \return A const iterator to the last attribute of a link.
-			*/
-			ConstAttributesIterator_t AttributesEnd(void) const;
+    /**
+     * \brief Returns a Ptr<Node> to the "to" node of the link.
+     * \return A Ptr<Node> to the "to" node of the link.
+     */
+    Ptr<Node> GetToNode(void) const;
 
-		private:
-			Link();
-			Ptr< Node > m_fromPtr;  //!< The node the links originates from.
-			Ptr< Node > m_toPtr;    //!< The node the links is directed to.
+    char GetFromType(void) const;
+    char GetToType(void) const;
 
-			char m_fromType; //!<s or h
-			unsigned int m_fromIndex; //!<direct siwtch index
-			char m_toType;
-			unsigned int m_toIndex;
+    unsigned int GetFromIndex(void) const;
+    unsigned int GetToIndex(void) const;
 
-			std::map<std::string, std::string> m_linkAttr;  //!< Container of the link attributes (if any).
-		};
+    /**
+     * \brief Returns the value of a link attribute. The attribute must exist.
+     * \param [in] name the name of the attribute.
+     * \return The value of the attribute.
+     */
+    std::string GetAttribute(const std::string &name) const;
+    /**
+     * \brief Returns the value of a link attribute.
+     * \param [in] name The name of the attribute.
+     * \param [out] value The value of the attribute.
+     *
+     * \return True if the attribute was defined, false otherwise.
+     */
+    bool GetAttributeFailSafe(const std::string &name,
+                              std::string &value) const;
+    /**
+     * \brief Sets an arbitrary link attribute.
+     * \param [in] name The name of the attribute.
+     * \param [in] value The value of the attribute.
+     */
+    void SetAttribute(const std::string &name, const std::string &value);
+    /**
+     * \brief Returns an iterator to the begin of the attributes.
+     * \return A const iterator to the first attribute of a link.
+     */
+    ConstAttributesIterator_t AttributesBegin(void) const;
+    /**
+     * \brief Returns an iterator to the end of the attributes.
+     * \return A const iterator to the last attribute of a link.
+     */
+    ConstAttributesIterator_t AttributesEnd(void) const;
 
-		/**
-		* \brief Constant iterator to the list of the links.
-		*/
-		typedef std::list< Link >::const_iterator ConstLinksIterator_t;
+  private:
+    Link();
+    Ptr<Node> m_fromPtr; //!< The node the links originates from.
+    Ptr<Node> m_toPtr;   //!< The node the links is directed to.
 
-		/**
-		* \brief Get the type ID.
-		* \return The object TypeId.
-		*/
-		static TypeId GetTypeId(void);
+    char m_fromType;          //!< s or h
+    unsigned int m_fromIndex; //!< direct siwtch index
+    char m_toType;
+    unsigned int m_toIndex;
 
-		P4TopologyReader();
-		virtual ~P4TopologyReader();
+    std::map<std::string, std::string>
+        m_linkAttr; //!< Container of the link attributes (if any).
+  };
 
-		/**
-		* \brief Main topology reading function.
-		*
-		* The data is parsed and the results are returned in the passed lists.
-		* The rationale behind this choice is to allow non-progressive node IDs
-		* in the topology files, as well as to separate the topology
-		* reader from the choices about actual IP number assignment and
-		* kind of links between nodes.
-		*
-		* \return The container of the nodes created (or null if there was an error).
-		*/
-		//virtual NodeContainer Read (void) = 0;
-		virtual void Read(void) = 0;
+  /**
+   * \brief Constant iterator to the list of the links.
+   */
+  typedef std::list<Link>::const_iterator ConstLinksIterator_t;
 
-		NodeContainer GetHostNodeContainer(void) const
-		{
-			return m_hosts;
-		}
+  /**
+   * \brief Get the type ID.
+   * \return The object TypeId.
+   */
+  static TypeId GetTypeId(void);
 
-		NodeContainer GetSwitchNodeContainer(void) const
-		{
-			return m_switches;
-		}
-		std::vector<std::string> GetSwitchNetFunc(void) const
-		{
-			return m_switchNetFunc;
-		}
+  P4TopologyReader();
+  virtual ~P4TopologyReader();
 
-		/**
-		* \brief Sets the input file name.
-		* \param [in] fileName The input file name.
-		*/
-		void SetFileName(const std::string &fileName);
+  /**
+   * \brief Main topology reading function.
+   *
+   * The data is parsed and the results are returned in the passed lists.
+   * The rationale behind this choice is to allow non-progressive node IDs
+   * in the topology files, as well as to separate the topology
+   * reader from the choices about actual IP number assignment and
+   * kind of links between nodes.
+   *
+   * \return The container of the nodes created (or null if there was an error).
+   */
+  // virtual NodeContainer Read (void) = 0;
+  virtual void Read(void) = 0;
 
-		/**
-		* \brief Returns the input file name.
-		* \return The input file name.
-		*/
-		std::string GetFileName(void) const;
+  NodeContainer GetHostNodeContainer(void) const { return m_hosts; }
 
-		/**
-		* \brief Returns an iterator to the the first link in this block.
-		* \return A const iterator to the first link in this block.
-		*/
-		ConstLinksIterator_t LinksBegin(void) const;
+  NodeContainer GetSwitchNodeContainer(void) const { return m_switches; }
+  std::vector<std::string> GetSwitchNetFunc(void) const {
+    return m_switchNetFunc;
+  }
 
-		/**
-		* \brief Returns an iterator to the the last link in this block.
-		* \return A const iterator to the last link in this block.
-		*/
-		ConstLinksIterator_t LinksEnd(void) const;
+  /**
+   * \brief Sets the input file name.
+   * \param [in] fileName The input file name.
+   */
+  void SetFileName(const std::string &fileName);
 
-		/**
-		* \brief Returns the number of links in this block.
-		* \return The number of links in this block.
-		*/
-		int LinksSize(void) const;
+  /**
+   * \brief Returns the input file name.
+   * \return The input file name.
+   */
+  std::string GetFileName(void) const;
 
-		/**
-		* \brief Checks if the block contains any links.
-		* \return True if there are no links in this block, false otherwise.
-		*/
-		bool LinksEmpty(void) const;
+  /**
+   * \brief Returns an iterator to the the first link in this block.
+   * \return A const iterator to the first link in this block.
+   */
+  ConstLinksIterator_t LinksBegin(void) const;
 
-		/**
-		* \brief Adds a link to the topology.
-		* \param link [in] The link to be added.
-		*/
-		void AddLink(Link link);
+  /**
+   * \brief Returns an iterator to the the last link in this block.
+   * \return A const iterator to the last link in this block.
+   */
+  ConstLinksIterator_t LinksEnd(void) const;
 
-	private:
+  /**
+   * \brief Returns the number of links in this block.
+   * \return The number of links in this block.
+   */
+  int LinksSize(void) const;
 
-		/**
-		* \brief Copy constructor
-		*
-		* Defined and unimplemented to avoid misuse.
-		*/
-		P4TopologyReader(const P4TopologyReader&);
-		/**
-		* \brief Copy constructor
-		*
-		* Defined and unimplemented to avoid misuse.
-		* \returns
-		*/
-		P4TopologyReader& operator= (const P4TopologyReader&);
+  /**
+   * \brief Checks if the block contains any links.
+   * \return True if there are no links in this block, false otherwise.
+   */
+  bool LinksEmpty(void) const;
 
-		/**
-		* The name of the input file.
-		*/
-		std::string m_fileName;
+  /**
+   * \brief Adds a link to the topology.
+   * \param link [in] The link to be added.
+   */
+  void AddLink(Link link);
 
-		/**
-		* The container of the links between the nodes.
-		*/
-		std::list<Link> m_linksList;
+private:
+  /**
+   * \brief Copy constructor
+   *
+   * Defined and unimplemented to avoid misuse.
+   */
+  P4TopologyReader(const P4TopologyReader &);
+  /**
+   * \brief Copy constructor
+   *
+   * Defined and unimplemented to avoid misuse.
+   * \returns
+   */
+  P4TopologyReader &operator=(const P4TopologyReader &);
 
-	protected:
+  /**
+   * The name of the input file.
+   */
+  std::string m_fileName;
 
-		NodeContainer m_hosts;
+  /**
+   * The container of the links between the nodes.
+   */
+  std::list<Link> m_linksList;
 
-		NodeContainer m_switches;
-		
-		std::vector<std::string> m_switchNetFunc;
-		// end class TopologyReader
-	};
+protected:
+  NodeContainer m_hosts;
 
-	// end namespace ns3
+  NodeContainer m_switches;
+
+  std::vector<std::string> m_switchNetFunc;
+  // end class TopologyReader
 };
 
+// end namespace ns3
+}; // namespace ns3
 
 #endif /* P4_TOPOLOGY_READER_H */

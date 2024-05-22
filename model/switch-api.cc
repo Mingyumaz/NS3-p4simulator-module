@@ -1,10 +1,10 @@
-# include "switch-api.h"
+#include "switch-api.h"
 
-namespace ns3{
+namespace ns3 {
 
 std::unordered_map<std::string, unsigned int> SwitchApi::g_apiMap;
 
-void SwitchApi::InitApiMap(){
+void SwitchApi::InitApiMap() {
 
   g_apiMap["table_set_default"] = TABLE_SET_DEFAULT;
   g_apiMap["table_add"] = TABLE_ADD;
@@ -23,6 +23,5 @@ void SwitchApi::InitApiMap(){
   g_apiMap["register_reset"] = REGISTER_RESET;
   g_apiMap["table_dump_entry"] = TABLE_DUMP_ENTRY;
   g_apiMap["table_dump"] = TABLE_DUMP;
-
 }
-}
+} // namespace ns3

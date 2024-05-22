@@ -8,15 +8,19 @@ NS_OBJECT_ENSURE_REGISTERED(P4GlobalVar);
 
 P4Controller P4GlobalVar::g_p4Controller;
 
-// init default static global variable
+/*******************************
+ *    P4 switch configuration  *
+ *            info             *
+ *******************************/
+
 unsigned int P4GlobalVar::g_networkFunc = SIMPLESWITCH;
-std::string P4GlobalVar::g_flowTablePath = ""; // SET BY HAND BEFORE USING
+std::string P4GlobalVar::g_flowTablePath = "";
 std::string P4GlobalVar::g_viewFlowTablePath = "";
 std::string P4GlobalVar::g_p4MatchTypePath = "";
 unsigned int P4GlobalVar::g_populateFlowTableWay =
     RUNTIME_CLI; // LOCAL_CALL/RUNTIME_CLI
 std::string P4GlobalVar::g_p4JsonPath = "";
-int P4GlobalVar::g_switchBottleNeck = 900;
+int P4GlobalVar::g_switchBottleNeck = 10000;
 
 std::string P4GlobalVar::g_homePath = "/home/p4/";
 std::string P4GlobalVar::g_ns3RootName = "/";
@@ -38,7 +42,9 @@ std::string P4GlobalVar::g_exampleP4SrcDir =
 unsigned int P4GlobalVar::g_nsType = P4Simulator;
 std::map<std::string, unsigned int> P4GlobalVar::g_nfStrUintMap;
 
-// configuration for the ns3-->p4
+/*******************************
+ *    P4 switch tracing data   *
+ *******************************/
 std::string P4GlobalVar::ns3i_drop_1 = "scalars.userMetadata._ns3i_ns3_drop18";
 std::string P4GlobalVar::ns3i_drop_2 = "scalars.userMetadata._ns3i_ns3_drop14";
 std::string P4GlobalVar::ns3i_priority_id_1 =
@@ -57,9 +63,6 @@ std::string P4GlobalVar::ns3i_pkts_id_1 =
     "scalars.userMetadata._ns3i_pkts_id22";
 std::string P4GlobalVar::ns3i_pkts_id_2 =
     "scalars.userMetadata._ns3i_pkts_id18";
-
-// tracing info
-
 bool P4GlobalVar::ns3_inner_p4_tracing = false;
 bool P4GlobalVar::ns3_p4_tracing_dalay_sim = false;
 bool P4GlobalVar::ns3_p4_tracing_dalay_ByteTag = false; // Byte Tag
@@ -68,19 +71,27 @@ bool P4GlobalVar::ns3_p4_tracing_control =
 bool P4GlobalVar::ns3_p4_tracing_drop =
     false; // the pkts drop in and out switch
 
+// get the current time in milliseconds
 unsigned long getTickCount(void) {
   unsigned long currentTime = 0;
+
 #ifdef WIN32
+  // Windows Platform
   currentTime = GetTickCount();
-#endif
+#else
+  // Unix/Linux Platform
   struct timeval current;
   gettimeofday(&current, NULL);
   currentTime = current.tv_sec * 1000 + current.tv_usec / 1000;
+#endif
+
 #ifdef OS_VXWORKS
+  // VXWorks Platform
   ULONGA timeSecond = tickGet() / sysClkRateGet();
   ULONGA timeMilsec = tickGet() % sysClkRateGet() * 1000 / sysClkRateGet();
   currentTime = timeSecond * 1000 + timeMilsec;
 #endif
+
   return currentTime;
 }
 
