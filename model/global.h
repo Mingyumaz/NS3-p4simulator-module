@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Author: PengKuang <kphf1995cm@outlook.com>
- * Modified: Ma Mingyu <myma979@gmail.com>
+ * Modified: Ma Mingyu <mingyu.ma@tu-dresden.de>
  */
 
 #ifndef GLOBAL_H
@@ -36,10 +36,17 @@ namespace ns3 {
 #define P4Simulator 0
 
 // nf info
-unsigned const int SIMPLESWITCH = 0;
-unsigned const int PRIORITYQUEUE = 1;
-unsigned const int SIMPLECODEL = 2;
-unsigned const int CODELPP = 3;
+unsigned const int ROUTER = 0;
+unsigned const int FIREWALL = 1;
+unsigned const int SILKROAD = 2;
+unsigned const int SIMPLE_ROUTER = 3;
+unsigned const int COUNTER = 4;
+unsigned const int METER = 5;
+unsigned const int REGISTER = 6;
+unsigned const int SIMPLESWITCH = 7;
+unsigned const int PRIORITYQUEUE = 8;
+unsigned const int SIMPLECODEL = 9;
+unsigned const int CODELPP = 10;
 
 // match type
 unsigned const int EXACT = 0;
@@ -60,12 +67,11 @@ public:
 
   // switch configuration info
   static unsigned int g_networkFunc;
-  static std::string g_flowTablePath; // The file path of the flow table
-  static std::string
-      g_viewFlowTablePath;         // The file path of the view flow table
-  static std::string g_p4JsonPath; // The file path of the p4 json file
-  static unsigned int
-      g_populateFlowTableWay; // The way to populate the flow table
+  static std::string g_p4MatchTypePath;
+  static std::string g_flowTablePath;
+  static std::string g_viewFlowTablePath;
+  static std::string g_p4JsonPath;
+  static unsigned int g_populateFlowTableWay;
   /**
    * @brief the bmv2 is not integrated into ns-3 fully, so the control
    * of the bottleneck needs to be set in bmv2 (by setting the packet
@@ -82,7 +88,6 @@ public:
   static std::string g_topoDir;
   static std::string g_flowTableDir;
   static std::string g_exampleP4SrcDir;
-
 
   // ns-3 and p4 connect name
   static std::string ns3i_drop_1;

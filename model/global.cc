@@ -12,6 +12,7 @@ P4Controller P4GlobalVar::g_p4Controller;
 unsigned int P4GlobalVar::g_networkFunc = SIMPLESWITCH;
 std::string P4GlobalVar::g_flowTablePath = ""; // SET BY HAND BEFORE USING
 std::string P4GlobalVar::g_viewFlowTablePath = "";
+std::string P4GlobalVar::g_p4MatchTypePath = "";
 unsigned int P4GlobalVar::g_populateFlowTableWay =
     RUNTIME_CLI; // LOCAL_CALL/RUNTIME_CLI
 std::string P4GlobalVar::g_p4JsonPath = "";
@@ -33,7 +34,6 @@ std::string P4GlobalVar::g_flowTableDir =
 std::string P4GlobalVar::g_exampleP4SrcDir =
     P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName +
     P4GlobalVar::g_ns3SrcName + "src/p4simulator/examples/p4src/";
-
 
 unsigned int P4GlobalVar::g_nsType = P4Simulator;
 std::map<std::string, unsigned int> P4GlobalVar::g_nfStrUintMap;
@@ -87,6 +87,46 @@ unsigned long getTickCount(void) {
 void P4GlobalVar::SetP4MatchTypeJsonPath() {
   switch (P4GlobalVar::g_networkFunc) {
   // simple switch for new p4-model
+  case FIREWALL: {
+    P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_nfDir + "firewall/firewall.json";
+    P4GlobalVar::g_p4MatchTypePath =
+        P4GlobalVar::g_nfDir + "firewall/mtype.txt";
+    break;
+  }
+  case SILKROAD: {
+    P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_nfDir + "silkroad/silkroad.json";
+    P4GlobalVar::g_p4MatchTypePath =
+        P4GlobalVar::g_nfDir + "silkroad/mtype.txt";
+    break;
+  }
+  case ROUTER: {
+    P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_nfDir + "router/router.json";
+    P4GlobalVar::g_p4MatchTypePath = P4GlobalVar::g_nfDir + "router/mtype.txt";
+    break;
+  }
+  case SIMPLE_ROUTER: {
+    P4GlobalVar::g_p4JsonPath =
+        P4GlobalVar::g_nfDir + "simple_router/simple_router.json";
+    P4GlobalVar::g_p4MatchTypePath =
+        P4GlobalVar::g_nfDir + "simple_router/mtype.txt";
+    break;
+  }
+  case COUNTER: {
+    P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_nfDir + "counter/counter.json";
+    P4GlobalVar::g_p4MatchTypePath = P4GlobalVar::g_nfDir + "counter/mtype.txt";
+    break;
+  }
+  case METER: {
+    P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_nfDir + "meter/meter.json";
+    P4GlobalVar::g_p4MatchTypePath = P4GlobalVar::g_nfDir + "meter/mtype.txt";
+    break;
+  }
+  case REGISTER: {
+    P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_nfDir + "register/register.json";
+    P4GlobalVar::g_p4MatchTypePath =
+        P4GlobalVar::g_nfDir + "register/mtype.txt";
+    break;
+  }
   case SIMPLESWITCH: {
     P4GlobalVar::g_p4JsonPath =
         P4GlobalVar::g_nfDir + "simple_switch/simple_switch.json";
@@ -121,6 +161,13 @@ void P4GlobalVar::SetP4MatchTypeJsonPath() {
 }
 
 void P4GlobalVar::InitNfStrUintMap() {
+  P4GlobalVar::g_nfStrUintMap["ROUTER"] = ROUTER;
+  P4GlobalVar::g_nfStrUintMap["SIMPLE_ROUTER"] = SIMPLE_ROUTER;
+  P4GlobalVar::g_nfStrUintMap["FIREWALL"] = FIREWALL;
+  P4GlobalVar::g_nfStrUintMap["SILKROAD"] = SILKROAD;
+  P4GlobalVar::g_nfStrUintMap["COUNTER"] = COUNTER;
+  P4GlobalVar::g_nfStrUintMap["METER"] = METER;
+  P4GlobalVar::g_nfStrUintMap["REGISTER"] = REGISTER;
   P4GlobalVar::g_nfStrUintMap["SIMPLESWITCH"] = SIMPLESWITCH;
   P4GlobalVar::g_nfStrUintMap["PRIORITYQUEUE"] = PRIORITYQUEUE;
   P4GlobalVar::g_nfStrUintMap["SIMPLECODEL"] = SIMPLECODEL;

@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 	clientApps.Stop(Seconds(clientStopTime));
 
 	csma.EnablePcapAll ("p4-example", false);
-	Packet::EnablePrinting();
+	ns3::Packet::EnablePrinting();
 
 	std::cout << "---------------Run Simulation----------------" << std::endl;
 	

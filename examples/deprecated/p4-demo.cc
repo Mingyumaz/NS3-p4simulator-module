@@ -151,7 +151,7 @@ int main (int argc, char *argv[])
 
   ////NS_LOG_INFO ("Configure Tracing.");
   csma.EnablePcapAll ("p4-example", false);
-  Packet::EnablePrinting ();
+  ns3::Packet::EnablePrinting ();
   
   ////NS_LOG_INFO ("Run Simulation.");
   Simulator::Run ();
