@@ -1,7 +1,7 @@
 /*
 Command: 
-./waf --run "p4-codel -model=0 -sim_delay=true -trace_control=true -trace_drop=False -pcap=true -p4src=codel++"
-./waf --run p4-codel --command-template="gdb %s --args --p4src=codel++"
+./waf --run "p4-simple-forward -model=0 -sim_delay=true -trace_control=true -trace_drop=False -pcap=true"
+./waf --run p4-simple-forward --command-template="gdb %s --args --p4src=codel++"
 
 Topo design like:
       h0--------------|                    |---------------h5 (UDP or TCP)
@@ -46,7 +46,7 @@ Topo design like:
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE("ScratchP4Codel");
+NS_LOG_COMPONENT_DEFINE("ScratchP4Forward");
 
 // total packets receive/ total packets send
 uint32_t totalPacketsReceivedH3 = 0; // n2 ---> n3
@@ -137,9 +137,9 @@ int main(int argc, char* argv[])
     // ============================  init global variable for P4 ============================
     P4GlobalVar::g_homePath = "/home/p4/";
     P4GlobalVar::g_ns3RootName = "";
-    P4GlobalVar::g_ns3SrcName = "p4simulator/";
-    P4GlobalVar::g_nfDir = P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName + P4GlobalVar::g_ns3SrcName + "scratch-p4-file/p4src/";
-    P4GlobalVar::g_topoDir = P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName + P4GlobalVar::g_ns3SrcName + "scratch-p4-file/topo/";
+    P4GlobalVar::g_ns3SrcName = "ns-3-dev-git/";
+    P4GlobalVar::g_nfDir = P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName + P4GlobalVar::g_ns3SrcName + "src/p4simulator/examples/p4src/";
+    P4GlobalVar::g_topoDir = P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName + P4GlobalVar::g_ns3SrcName + "src/p4simulator/examples/topo/";
     P4GlobalVar::g_populateFlowTableWay = NS3PIFOTM; // the method to send the config for flow table, LOCAL_CALL/RUNTIME_CLI/NS3PIFOTM
     P4GlobalVar::g_nsType = P4Simulator; // NS3 / P4Simulator
     // P4GlobalVar::g_runtimeCliTime = 3; // the time sleep before send the config command(flow table) through the thrift to bmv2
@@ -155,10 +155,10 @@ int main(int argc, char* argv[])
     int podNum = 2; // the host number, default 2
     bool buildTopo = false; // whether build topo by podNum
     bool toBuild = true; // whether build flow table entired by program --(should always be true with p4)
-    uint16_t pktSize = 1470;  //in bytes. 1458 to prevent fragments, default 512
+    uint16_t pktSize = 1470;  //in bytes. 1458 to prevent fragments, should always < MTU
     
     std::string appDataRate[] = {"2Mbps", "2Mbps", "2Mbps"}; 
-    std::string p4src = "new_codel";
+    std::string p4src = "simple_switch";
     bool enableTracePcap = true;
     
     uint32_t SentPackets = 0;
@@ -167,13 +167,14 @@ int main(int argc, char* argv[])
 	bool TraceMetric = false;
 
     const std::string outputDir = "./scratch-data/";
-    const std::string fileName = "p4codel";
+    const std::string fileName = "simple_switch";
 
     const size_t depth_pkts_all = 10000; // all egress queue depths maxinum
-    uint64_t rate_pps = 445; // 5 * 1024 * 1024 / 8 / 1470(pkts_size) = 445 ;
-
-    //P4GlobalVar::g_switchBottleNeck = 1000000 / rate_pps; // pps/us
-    P4GlobalVar::g_switchBottleNeck = 2430; // 1 / 445 = 2247 2450
+    
+    // Here we need calculated the congestion, how many packets we want to pass the queue
+    uint64_t congestion_bottleneck = 5; // Mbps
+    uint64_t rate_pps = (uint64_t)(congestion_bottleneck * 1024 * 1024 / (pktSize * 8));
+    P4GlobalVar::g_switchBottleNeck = (uint64_t)(1000000 / rate_pps); // pps/us
 
     // The times
     double global_start_time = 1.0;
@@ -185,17 +186,17 @@ int main(int argc, char* argv[])
     double sink_stop_time = client_stop_time + 10;
 
     // ============================ start debug module ============================
-    LogComponentEnable("ScratchP4Codel", LOG_LEVEL_LOGIC);
-    // LogComponentEnable("CsmaNetDevice", LOG_LEVEL_LOGIC);
+    LogComponentEnable("ScratchP4Forward", LOG_LEVEL_LOGIC);
+    
     //  ============================ import the topo ============================
     std::string topoFormat("CsmaTopo");
     std::string topoPath = P4GlobalVar::g_topoDir;
     if (buildTopo) {
-        topoPath += "testTopo.txt";
+        // topoPath += "testTopo.txt";
+        topoPath += "dumbbellTopo.txt";
     } else {
-        topoPath += "designedTopo.txt";
+        topoPath += "dumbbellTopo.txt";
     }
-    // NS_LOG_LOGIC(topoPath);
     std::string topoInput(topoPath);
 
     // ============================  command line ============================
@@ -226,30 +227,10 @@ int main(int argc, char* argv[])
         P4GlobalVar::ns3i_destination_2 = "scalars.userMetadata._ns3i_destination4";
         P4GlobalVar::ns3i_pkts_id_1 = "scalars.userMetadata._ns3i_pkts_id5";
         P4GlobalVar::ns3i_pkts_id_2 = "scalars.userMetadata._ns3i_pkts_id5";
-    } else if (p4src == "simple_codel") {
-        P4GlobalVar::ns3i_drop_1 = "scalars.userMetadata._ns3i_ns3_drop14";
-        P4GlobalVar::ns3i_drop_2 = "scalars.userMetadata._ns3i_ns3_drop14";
-        P4GlobalVar::ns3i_priority_id_1 = "scalars.userMetadata._ns3i_ns3_priority_id15";
-        P4GlobalVar::ns3i_priority_id_2 = "scalars.userMetadata._ns3i_ns3_priority_id15";
-        P4GlobalVar::ns3i_protocol_1 = "scalars.userMetadata._ns3i_protocol16";
-        P4GlobalVar::ns3i_protocol_2 = "scalars.userMetadata._ns3i_protocol16";
-        P4GlobalVar::ns3i_destination_1 = "scalars.userMetadata._ns3i_destination17";
-        P4GlobalVar::ns3i_destination_2 = "scalars.userMetadata._ns3i_destination17";
-        P4GlobalVar::ns3i_pkts_id_1 = "scalars.userMetadata._ns3i_pkts_id18";
-        P4GlobalVar::ns3i_pkts_id_2 = "scalars.userMetadata._ns3i_pkts_id18";
-    } else {
-        P4GlobalVar::ns3i_drop_1 = "scalars.userMetadata._ns3i_ns3_drop18";
-        P4GlobalVar::ns3i_drop_2 = "scalars.userMetadata._ns3i_ns3_drop14";
-        P4GlobalVar::ns3i_priority_id_1 = "scalars.userMetadata._ns3i_ns3_priority_id19";
-        P4GlobalVar::ns3i_priority_id_2 = "scalars.userMetadata._ns3i_ns3_priority_id15";
-        P4GlobalVar::ns3i_protocol_1 = "scalars.userMetadata._ns3i_protocol20";
-        P4GlobalVar::ns3i_protocol_2 = "scalars.userMetadata._ns3i_protocol16";
-        P4GlobalVar::ns3i_destination_1 = "scalars.userMetadata._ns3i_destination21";
-        P4GlobalVar::ns3i_destination_2 = "scalars.userMetadata._ns3i_destination17";
-        P4GlobalVar::ns3i_pkts_id_1 = "scalars.userMetadata._ns3i_pkts_id22";
-        P4GlobalVar::ns3i_pkts_id_2 = "scalars.userMetadata._ns3i_pkts_id18";
     }
-    
+    else {
+        std::cout << "Now can only using simple_switch as P4 switch!" << std::endl;
+    }
 
     // ============================ build topo automate ============================
     if (buildTopo) {
@@ -504,43 +485,18 @@ int main(int argc, char* argv[])
             // Here we set the Json Path by hand (different switchs with different configurations)
             // @json_path [codel+], [codel++], [codel++v2], [codel_recir], [new_codel] or [new_codel_v2]
             // [simple_switch], [simple_codel], [priority_queuing]
-            if (p4src == "codel+") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "codelp/codel" + UintToString(i + 1) + ".json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "codelp/flowtable/";
-            } else if (p4src == "codel++") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "codelpp/codel" + UintToString(i + 1) + ".json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "codelpp/flowtable/";
-            } else if (p4src == "codel++v2") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "codelpp2/codel" + UintToString(i + 1) + ".json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "codelpp2/flowtable/";
-            } else if (p4src == "codel_recir") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "codel_recir/codel" + UintToString(i + 1) + ".json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "codel_recir/flowtable/";
-            } else if (p4src == "new_codel") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "new_codel/codel" + UintToString(i + 1) + ".json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "new_codel/flowtable/"; 
-            } else if (p4src == "new_codel_v2") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "new_codel_v2/codel" + UintToString(i + 1) + ".json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "new_codel_v2/flowtable/";         
-            } else if (p4src == "simple_switch") {
+            if (p4src == "simple_switch") {
                 P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "simple_switch/simple_switch.json";
                 P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "simple_switch/flowtable/";  
-            } else if (p4src == "simple_codel") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "simple_codel/simple_codel.json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "simple_codel/flowtable/";  
-            } else if (p4src == "priority_queuing") {
-                P4GlobalVar::g_p4JsonPath = P4GlobalVar::g_exampleP4SrcDir + "priority_queuing/priority_queuing_" + UintToString(i + 1) + ".json";
-                P4GlobalVar::g_flowTableDir = P4GlobalVar::g_exampleP4SrcDir + "priority_queuing/flowtable/";
             } else {
                 // No need for other configuration. The config from the topo file.
-
                 // std::cout << "Using TOPO file defined alg for P4" << std::endl; 
                 NS_LOG_LOGIC("Using TOPO file defined alg for P4");
             }
             P4GlobalVar::g_flowTablePath = P4GlobalVar::g_flowTableDir + flowTableName;
 
-            // NS_LOG_LOGIC("Configuring with json: " << P4GlobalVar::g_p4JsonPath);
-            // NS_LOG_LOGIC("Configuring with CLI: " << P4GlobalVar::g_flowTablePath);
+            NS_LOG_LOGIC("Configuring with json: " << P4GlobalVar::g_p4JsonPath);
+            NS_LOG_LOGIC("Configuring with CLI: " << P4GlobalVar::g_flowTablePath);
             bridge.Install(csmaSwitch.Get(i), switchNodes[i].switchDevices);
 
             int num_devices = csmaSwitch.Get(i)->GetNDevices();

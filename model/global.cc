@@ -24,14 +24,14 @@ int P4GlobalVar::g_switchBottleNeck = 10000;
 
 std::string P4GlobalVar::g_homePath = "/home/p4/";
 std::string P4GlobalVar::g_ns3RootName = "/";
-std::string P4GlobalVar::g_ns3SrcName = "p4simulator/";
+std::string P4GlobalVar::g_ns3SrcName = "ns-3-dev-git/";
 
 std::string P4GlobalVar::g_nfDir =
     P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName +
-    P4GlobalVar::g_ns3SrcName + "scratch-p4-file/p4src";
+    P4GlobalVar::g_ns3SrcName + "src/p4simulator/examples/p4src/";
 std::string P4GlobalVar::g_topoDir =
     P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName +
-    P4GlobalVar::g_ns3SrcName + "scratch-p4-file/topo/";
+    P4GlobalVar::g_ns3SrcName + "src/p4simulator/examples/topo/";
 std::string P4GlobalVar::g_flowTableDir =
     P4GlobalVar::g_homePath + P4GlobalVar::g_ns3RootName +
     P4GlobalVar::g_ns3SrcName + "scratch-p4-file/flowtable/";

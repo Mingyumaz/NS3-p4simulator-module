@@ -19,7 +19,7 @@
  *    bit<64>     pkts_id;            // the id of the ns3::packet (using for tracing etc)
  *    }
  *
- * @mingyu myma979@gmail.com
+ * @mingyu   E-mail:   mingyu.ma@tu-dresden.de
  */
 
 #include <core.p4>
